@@ -59,3 +59,10 @@ Para gerar a versão final do site para implantação:
 - [Vite](https://vitejs.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 - HTML5 & CSS3
+
+## Proximas Features a Serem implementadas
+
+- [ ] Lista circular de letras
+- [ ] Gerar dica do criptex
+- [ ] Permitir conteudo ser uma imagem
+- [ ] Adicionar novos puzzes?
