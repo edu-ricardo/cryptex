@@ -1,0 +1,222 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1 {
+  font-size: 2.5em;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+p {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.generator, .link-display {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.generator {
+    flex-direction: column;
+}
+
+input[type="text"],
+textarea {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 1em;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  transition: border-color 0.25s;
+  color: rgba(255, 255, 255, 0.87);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.8em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.hidden {
+  display: none;
+}
+
+/* New Cryptex Styles */
+.cryptex {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  background-color: #1a1a1a;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 4px solid #4a4a4a;
+  border-top-color: #5a5a5a;
+  border-bottom-color: #3a3a3a;
+}
+
+.dial-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dial-button {
+  background: #333;
+  border: 1px solid #555;
+  color: white;
+  width: 50px;
+  height: 25px;
+  line-height: 25px;
+  padding: 0;
+  font-size: 1rem;
+}
+
+.dial-button:hover {
+  background: #444;
+  border-color: #777;
+}
+
+.up-button {
+  border-radius: 8px 8px 0 0;
+}
+
+.down-button {
+  border-radius: 0 0 8px 8px;
+}
+
+.letter-viewport {
+  width: 50px;
+  height: 150px; /* This MUST match 3 * letterHeight in main.ts */
+  overflow: hidden;
+  background: #000;
+  border-left: 2px solid #555;
+  border-right: 2px solid #555;
+}
+
+.letter-strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+
+.letter {
+  width: 50px;
+  height: 50px; /* This MUST match the letterHeight in main.ts */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #ddd;
+  opacity: 0.4; /* Adjacent letters are less visible */
+  transition: opacity 0.2s ease-in-out;
+}
+
+.letter.active {
+    opacity: 1; /* Active letter is fully visible */
+}
+
+.cryptex.solved .letter-viewport {
+  border-color: #28a745;
+}
+
+.cryptex.solved .letter {
+    color: #28a745;
+}
+
+#result-message {
+  font-size: 1.2em;
+  font-weight: 500;
+  min-height: 1.5em; /* Prevent layout shift */
+}
+
+#secret-message-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #1a1a1a;
+    border: 1px solid #646cff;
+    border-radius: 8px;
+}
+
+#secret-message-container h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+#secret-message {
+    font-size: 1.1em;
+    white-space: pre-wrap; /* Respect newlines in the message */
+}
+
+a {
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
