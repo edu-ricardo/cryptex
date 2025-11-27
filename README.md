@@ -62,7 +62,7 @@ Para gerar a versão final do site para implantação:
 
 ## Proximas Features a Serem implementadas
 
-- [ ] Lista circular de letras
+- [x] Lista circular de letras
 - [ ] Gerar dica do criptex
 - [ ] Permitir conteudo ser uma imagem
 - [ ] Adicionar novos puzzes?
