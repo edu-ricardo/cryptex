@@ -21,10 +21,11 @@ export function renderSolver(app: HTMLDivElement, encodedData: string) {
     `;
 
     const cryptexContainer = document.getElementById('cryptex-container')!;
-    const dialData: { letters: string[]; currentIndex: number }[] = [];
+    const dialData: { baseLetters: string[]; currentIndex: number }[] = [];
     const letterStrips: HTMLDivElement[] = [];
+    const animating = new Set<number>();
 
-    const letterHeight = 50; // This value MUST match the CSS
+    // letter height is controlled by CSS (.letter { height: 50px })
 
     // Helper to shuffle array
     const shuffleArray = (arr: string[]) => arr.sort(() => Math.random() - 0.5);
@@ -39,8 +40,8 @@ export function renderSolver(app: HTMLDivElement, encodedData: string) {
       }
       
       const dialInfo = {
-        letters: shuffledLetters,
-        currentIndex: Math.floor(shuffledLetters.length / 2), // Start in the middle
+        baseLetters: shuffledLetters,
+        currentIndex: Math.floor(shuffledLetters.length / 2), // start near middle of base set
       };
       dialData.push(dialInfo);
 
@@ -59,12 +60,15 @@ export function renderSolver(app: HTMLDivElement, encodedData: string) {
       letterStrip.classList.add('letter-strip');
       letterStrips.push(letterStrip);
       
-      shuffledLetters.forEach(letter => {
+      // Populate with 3 letters: prev, current, next — always present (circular)
+      for (let j = 0; j < 3; j++) {
         const letterDiv = document.createElement('div');
         letterDiv.classList.add('letter');
-        letterDiv.textContent = letter;
+        // placeholder text; will be updated by updateDialAppearance
+        letterDiv.textContent = '';
         letterStrip.appendChild(letterDiv);
-      });
+      }
+      // no initial transform: three-row strip already centers the middle letter
 
       letterViewport.appendChild(letterStrip);
 
@@ -80,32 +84,67 @@ export function renderSolver(app: HTMLDivElement, encodedData: string) {
     }
     
     const updateDialAppearance = (index: number) => {
-        const dialInfo = dialData[index];
-        const letterStrip = letterStrips[index];
+      const dialInfo = dialData[index];
+      const letterStrip = letterStrips[index];
+      const base = dialInfo.baseLetters;
+      const L = base.length;
 
-        // Update transform to center the active letter
-        const translateY = dialInfo.currentIndex * letterHeight - (letterHeight);
-        letterStrip.style.transform = `translateY(-${translateY}px)`;
+      // compute prev/current/next from baseLetters (circular)
+      const prev = base[(dialInfo.currentIndex - 1 + L) % L];
+      const curr = base[dialInfo.currentIndex % L];
+      const next = base[(dialInfo.currentIndex + 1) % L];
 
-        // Update classes
-        letterStrip.querySelectorAll('.letter').forEach((letterDiv, i) => {
-            letterDiv.classList.remove('active');
-            if (i === dialInfo.currentIndex) {
-                letterDiv.classList.add('active');
-            }
-        });
+      const letterDivs = Array.from(letterStrip.querySelectorAll('.letter')) as HTMLDivElement[];
+      if (letterDivs.length >= 3) {
+        letterDivs[0].textContent = prev;
+        letterDivs[1].textContent = curr;
+        letterDivs[2].textContent = next;
+        letterDivs.forEach(d => d.classList.remove('active'));
+        letterDivs[1].classList.add('active');
+      }
     }
 
     const updateDial = (index: number, direction: 'up' | 'down') => {
-        const dialInfo = dialData[index];
-        const numLetters = dialInfo.letters.length;
+      const dialInfo = dialData[index];
+      const numLetters = dialInfo.baseLetters.length;
 
-        if (direction === 'up') {
-            dialInfo.currentIndex = (dialInfo.currentIndex - 1 + numLetters) % numLetters;
-        } else {
-            dialInfo.currentIndex = (dialInfo.currentIndex + 1) % numLetters;
-        }
+      if (animating.has(index)) return; // ignore while animating
+      animating.add(index);
+
+      const letterStrip = letterStrips[index];
+      // compute new index (but don't update DOM texts until animation ends)
+      const newIndex = direction === 'up'
+        ? (dialInfo.currentIndex - 1 + numLetters) % numLetters
+        : (dialInfo.currentIndex + 1) % numLetters;
+
+      // ensure there's a transition set (CSS has fallback)
+      letterStrip.style.transition = 'transform 180ms ease';
+      const distance = 50; // px, must match .letter height in CSS
+      if (direction === 'up') {
+        // move content down so previous letter moves into middle
+        letterStrip.style.transform = `translateY(${distance}px)`;
+      } else {
+        // move content up so next letter moves into middle
+        letterStrip.style.transform = `translateY(-${distance}px)`;
+      }
+
+      const cleanup = () => {
+        letterStrip.removeEventListener('transitionend', onEnd);
+        // commit index and update displayed letters
+        dialInfo.currentIndex = newIndex;
+        // temporarily disable transition and reset transform to zero
+        letterStrip.style.transition = 'none';
+        letterStrip.style.transform = 'translateY(0)';
         updateDialAppearance(index);
+        // restore transition after a frame
+        requestAnimationFrame(() => { requestAnimationFrame(() => { letterStrip.style.transition = ''; }); });
+        animating.delete(index);
+      };
+
+      const onEnd = () => cleanup();
+      letterStrip.addEventListener('transitionend', onEnd);
+      // safety fallback: if transitionend doesn't fire, force cleanup
+      setTimeout(() => { if (animating.has(index)) cleanup(); }, 400);
     };
 
     // Set initial state
@@ -135,7 +174,9 @@ export function renderSolver(app: HTMLDivElement, encodedData: string) {
     checkButton.addEventListener('click', () => {
       let guess = '';
       dialData.forEach(dialInfo => {
-        guess += dialInfo.letters[dialInfo.currentIndex];
+        const base = dialInfo.baseLetters;
+        const letter = base[dialInfo.currentIndex % base.length];
+        guess += letter;
       });
 
       if (guess === solution) {
